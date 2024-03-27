@@ -1,0 +1,3 @@
+hmmlearn
+numpy
+matplotlib
