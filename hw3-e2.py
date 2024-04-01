@@ -1,7 +1,7 @@
 import pickle
 import numpy as np
 from hmmlearn import hmm
-
+from sklearn.model_selection import train_test_split
 
 PROT_STATES = ['A', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'K', 'L', 'M', 'N', 'P', 'Q', 'R', 'S', 'T', 'V', 'W', 'Y']
 PROT_MAP = {state: i for i, state in enumerate(PROT_STATES)}
@@ -10,11 +10,9 @@ SS_STATES = ['H', 'E', 'C']
 N_STATES = 3
 SS_MAP = {state: i for i, state in enumerate(SS_STATES)}
 
-# parse data from file
 def seq_file_to_json(file_path: str):
-    f = open('hw4/' + file_path, 'r')
-    segments = f.read().split('>')
-    f.close()
+    with open(file_path, 'r') as f:
+        segments = f.read().split('>')
     params = {}
 
     for seg in segments:
@@ -26,16 +24,15 @@ def seq_file_to_json(file_path: str):
     return params
 
 def load_prot_list():
-    f = open("hw4/list_of_prots", 'r')
-    list_of_prots = f.read().splitlines()
-    f.close()    
+    with open("hw4/list_of_prots", 'r') as f:
+        list_of_prots = f.read().splitlines()
     return list_of_prots
 
 def load_dataset():
     data =  []
     prots_list = load_prot_list()
     for prot in prots_list:
-        data.append(seq_file_to_json(prot))
+        data.append(seq_file_to_json('hw4/' + prot))  # Modified file path to include 'hw4/'
     return data
 
 def extract_ss(data):
@@ -56,61 +53,38 @@ def map_ss(ss):
 def map_seq(seq):
     return [PROT_MAP[state] for state in seq]
 
-# HMM model
-model = hmm.MultinomialHMM(n_components=N_STATES, n_iter=100)
-
-# Prepare the training data
+# Prepare the dataset
 dataset = load_dataset()
-# only want to use first 80 for training
-X_seq = extract_seq(dataset[:80])
+X_seq = extract_seq(dataset)
+Y_ss = extract_ss(dataset)
 
-# Tweaked to concatenate all the sequences
-X = np.concatenate(X_seq)
-lengths = [len(x) for x in X_seq]
+# Split dataset into training and test sets
+X_train, X_test, Y_train, Y_test = train_test_split(X_seq, Y_ss, test_size=0.2, random_state=22)
 
-print(len(X))
+# Initialize and train the HMM model
+model = hmm.GaussianHMM(n_components=N_STATES, n_iter=10)
+X_train_concat = np.concatenate(X_train)
+lengths = [len(x) for x in X_train]
+model.fit(X_train_concat, lengths)
+print(lengths)
 
-# Shuffle X
-np.random.shuffle(X)
+# Evaluate the model on the test set
+predicted_ss = [model.predict(y) for y in X_test]
 
-for _ in range(5):
-    # Model training
-    model.fit(X, lengths)
-
-# Model evaluation
-
-prot_list = load_prot_list()
-
-Y_seq = extract_seq(dataset[80:])
-Y_ss = extract_ss(dataset[80:])
-
-
-predicted_ss = []
-for y in Y_seq:
-    pred = model.predict(y)
-    predicted_ss.append(pred)
-
-equality = []
-for i in range(len(Y_seq)):
-    curr_equality = predicted_ss[i] == Y_ss[i]
-    curr_equality = curr_equality.reshape(-1, 1)
-    equality.append(curr_equality)
-    print(f"Predicted: {predicted_ss[i].reshape(1,- 1)}")
-    # print(f"Actual: {Y_ss[i].reshape(1, -1)}")
-    print()
-
-equality = np.concatenate(equality)
-accuracy = np.average(equality) * 100
+# Calculate accuracy
+accuracy = np.mean([np.mean(pred == actual) for pred, actual in zip(predicted_ss, Y_test)]) * 100
 print(f"Accuracy: {accuracy}%")
 
+# Print predicted and actual sequences
+for pred, actual in zip(predicted_ss, Y_test):
+    print("Predicted sequence:", pred.flatten())
+    print("Actual sequence:", actual.flatten())
+    print()
+    
 # Save model to file
 with open('model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
-
-# load the model from file
+# Load the model from file
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
-
-
-
