@@ -66,6 +66,8 @@ def save_result(seq, hidden_states, viterby_hidden_states, log_prob, prob_matrix
 # the HMM generates a sequence of 10000 proteins 
 seq, hidden_states = model.sample(10000)
 
+
+
 log_probability, viterby_hidden_states = model.decode(seq,
 											lengths = len(seq),
 											algorithm ='viterbi' )

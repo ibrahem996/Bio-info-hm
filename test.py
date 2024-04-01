@@ -73,6 +73,3 @@ with open('model.pkl', 'wb') as f:
 # load the model from file
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
-
-
-
