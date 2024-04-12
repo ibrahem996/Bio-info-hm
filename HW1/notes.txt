@@ -1,0 +1,19 @@
+calculate all phi, psi angles 
+
+for all amino acids calculate phi, psi angles,
+ calculate average phi, psi, plot averages on a map
+create 20x20 distance matrix for all amino acids 
+ averages distance. (diagonal is the matrix is 0)
+Compare with BLOSUM.
+
+
+20 []
+
+  A B C . . .
+A 0 _ _ _ _ _ 
+B _ 0 _ _ _ _
+C _ _ 0 _ _ _
+. _ _ _ 0 _ _
+. _ _ _ _ 0 _
+. _ _ _ _ _ 0
+
