@@ -10,7 +10,7 @@ SS_STATES = ['H', 'E', 'C']
 N_STATES = 3
 SS_MAP = {state: i for i, state in enumerate(SS_STATES)}
 
-# parse data from file
+
 def seq_file_to_json(file_path: str):
     f = open('hw4/' + file_path, 'r')
     segments = f.read().split('>')
@@ -44,17 +44,8 @@ def extract_ss(data):
     ss = [np.array(x).reshape(-1, 1) for x in ss]
     return ss
 
-def extract_seq(data):
-    seq = [x[list(x.keys())[-1]] for x in data]
-    seq = [map_seq(x) for x in seq]
-    seq = [np.array(x).reshape(-1, 1) for x in seq]
-    return seq
-
 def map_ss(ss):
     return [SS_MAP[state] for state in ss]
-
-def map_seq(seq):
-    return [PROT_MAP[state] for state in seq]
 
 # HMM model
 model = hmm.MultinomialHMM(n_components=N_STATES, n_iter=100)
@@ -62,46 +53,17 @@ model = hmm.MultinomialHMM(n_components=N_STATES, n_iter=100)
 # Prepare the training data
 dataset = load_dataset()
 # only want to use first 80 for training
-X_seq = extract_seq(dataset[:80])
+X_ss = extract_ss(dataset[:80])
 
 # Tweaked to concatenate all the sequences
-X = np.concatenate(X_seq)
-lengths = [len(x) for x in X_seq]
+X = np.concatenate(X_ss)
+lengths = [len(x) for x in X_ss]
 
-print(len(X))
-
-# Shuffle X
-np.random.shuffle(X)
-
-for _ in range(5):
-    # Model training
-    model.fit(X, lengths)
+# Model training
+model.fit(X, lengths)
 
 # Model evaluation
 
-prot_list = load_prot_list()
-
-Y_seq = extract_seq(dataset[80:])
-Y_ss = extract_ss(dataset[80:])
-
-
-predicted_ss = []
-for y in Y_seq:
-    pred = model.predict(y)
-    predicted_ss.append(pred)
-
-equality = []
-for i in range(len(Y_seq)):
-    curr_equality = predicted_ss[i] == Y_ss[i]
-    curr_equality = curr_equality.reshape(-1, 1)
-    equality.append(curr_equality)
-    print(f"Predicted: {predicted_ss[i].reshape(1,- 1)}")
-    # print(f"Actual: {Y_ss[i].reshape(1, -1)}")
-    print()
-
-equality = np.concatenate(equality)
-accuracy = np.average(equality) * 100
-print(f"Accuracy: {accuracy}%")
 
 # Save model to file
 with open('model.pkl', 'wb') as f:
@@ -111,6 +73,3 @@ with open('model.pkl', 'wb') as f:
 # load the model from file
 with open('model.pkl', 'rb') as f:
     model = pickle.load(f)
-
-
-
