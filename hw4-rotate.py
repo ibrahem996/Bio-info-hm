@@ -1,11 +1,10 @@
-import numpy as np
-from Bio import PDB
-import numpy as np
 
-# Original code by Talal Zoabi
+
 from Bio.PDB import PDBParser, PDBIO
 from Bio.PDB.StructureBuilder import StructureBuilder
 import numpy as np
+
+# Original code by Talal Zoabi
 
 # Function to apply rotation to the structure
 def apply_rotation(structure, rotation_matrix):
