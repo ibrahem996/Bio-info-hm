@@ -39,21 +39,15 @@ def add_noise(matrix, noise_level):
 
 
 
-def distance_matrix_to_gram(D):
-    """Converts a distance matrix to a Gram matrix."""
+
+def extract_coordinates(D):
     n = D.shape[0]
     # Squared distance matrix
     D2 = D**2
-    # Double centering formula to compute Gram matrix
     ones = np.ones((n, n))
     J = np.eye(n) - ones / n
     G = -0.5 * J @ D2 @ J
-    return G
-
-def extract_coordinates(D):
-    """Extracts 3D coordinates using SVD from a distance matrix."""
-    # Convert distance matrix to Gram matrix
-    G = distance_matrix_to_gram(D)
+    
     # Perform SVD
     U, sigma, Vt = np.linalg.svd(G)
     # Check for negative eigenvalues and set them to zero
