@@ -93,17 +93,20 @@ def optimal_superposition(left, right):
 def main():
     ca_coords = get_CA_atoms_coordinates("2e0p", "HW1/pdb/2e0p.pdb")
     distance_matrix = calculate_distance_matrix(ca_coords)
+
+    print("CA atoms count: ", len(ca_coords))
     
-    noisy_distance_matrix = add_noise(distance_matrix, 0.1)
+    noisy_distance_matrix = add_noise(distance_matrix, 0.03)
     noisy_coords = extract_coordinates(noisy_distance_matrix)
     
+    # aligned_coords, rmsd = optimal_superposition(ca_coords, noisy_coords)
     aligned_coords, rmsd = optimal_superposition(noisy_coords, ca_coords)
 
+    print("Aligned Coordinates:")
+    print(aligned_coords)
     print("RMSD:", rmsd)
-    
-    
 
-
+    
 
 if __name__ == "__main__":
     main()
