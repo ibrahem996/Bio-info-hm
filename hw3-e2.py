@@ -12,7 +12,7 @@ SS_MAP = {state: i for i, state in enumerate(SS_STATES)}
 
 # parse data from file
 def seq_file_to_json(file_path: str):
-    f = open('hw4/' + file_path, 'r')
+    f = open('side/hw4/' + file_path, 'r')
     segments = f.read().split('>')
     f.close()
     params = {}
@@ -26,7 +26,7 @@ def seq_file_to_json(file_path: str):
     return params
 
 def load_prot_list():
-    f = open("hw4/list_of_prots", 'r')
+    f = open("side/hw4/list_of_prots", 'r')
     list_of_prots = f.read().splitlines()
     f.close()    
     return list_of_prots
@@ -104,13 +104,13 @@ accuracy = np.average(equality) * 100
 print(f"Accuracy: {accuracy}%")
 
 # Save model to file
-with open('model.pkl', 'wb') as f:
+with open('side/model.pkl', 'wb') as f:
     pickle.dump(model, f)
 
 
-# load the model from file
-with open('model.pkl', 'rb') as f:
-    model = pickle.load(f)
+# # load the model from file
+# with open('model.pkl', 'rb') as f:
+#     model = pickle.load(f)
 
 
 
