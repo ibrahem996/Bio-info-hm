@@ -1,0 +1,7 @@
+biopython
+matplotlib
+numpy
+scipy
+seaborn
+transformers
+torch
